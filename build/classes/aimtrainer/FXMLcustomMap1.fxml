@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Text?>
+<?import java.util.ArrayList?>
+<?import javafx.scene.shape.Circle?>
+<?import aimtrainer.MapSettings?>
+<?import aimtrainer.Target?>
+
+<Pane fx:id="pane" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aimtrainer.CustomMapController">
+<properties approachTime="5" speed="5.0" size="6.0" colors="Zelená,Červená"/>
+    <Circle centerX="500" centerY="500"  />
+    <Circle centerX="600" centerY="700"  />
+    <Circle centerX="700" centerY="500"  />
+</Pane>
