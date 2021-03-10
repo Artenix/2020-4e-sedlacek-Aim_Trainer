@@ -5,39 +5,21 @@ package aimtrainer;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.animation.FadeTransition;
-import javafx.animation.KeyFrame;
-import javafx.animation.PauseTransition;
-import javafx.animation.Timeline;
-import javafx.application.Platform;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.StrokeType;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 /**
  * FXML Controller class
- *
+ * zpracovani fxml souboru na instanci tridy CustomMap
  * @author kubaj
  */
 public class CustomMapController extends Thread implements Initializable {
@@ -53,55 +35,72 @@ public class CustomMapController extends Thread implements Initializable {
     private double speed;
     private double size;
     private List<Color> colors = new ArrayList<Color>();
+    private CustomMap cm;
 
     
     
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        //ziskani informaci o mape ze souboru fxml
         approachTime = (int) (1.0 / Integer.parseInt((String) pane.getProperties().get("approachTime")) * 3000);
-        //time = Integer.parseInt((String) pane.getProperties().get("time"));
         speed = Double.parseDouble((String) pane.getProperties().get("speed"));
+        
+        //defaultni velikost pro terce, ktere nemaji preddefinovanou vlastni velikost
         size = (Double.parseDouble((String) pane.getProperties().get("size")) * 10) + 10;
+        
         colors = getColors(((String) pane.getProperties().get("colors")).split(","));
         MapSettings settings = new MapSettings(approachTime, time, speed, size, colors);
         children = pane.getChildren();
         
-        CustomMap cm = new CustomMap(settings, children);
-        cm.start();
+        cm = new CustomMap(settings, children);
+    }
+    
+    public CustomMap getCustomMap(){
+        return cm;
     }
     
     private List<Color> getColors(String[] list) {
+        //text na barvu
         List<Color> selected = new ArrayList<>();
         for(int i = 0; i < list.length; i++){
-            switch(list[i]){
-                case("Červená"):
+            switch(list[i].toLowerCase()){
+                case("red"):
                     selected.add(Color.CRIMSON);
                     break;
-                case("Zelená"):
+                case("green"):
                     selected.add(Color.LIMEGREEN);
                     break;
-                case("Modrá"):
+                case("blue"):
                     selected.add(Color.DODGERBLUE);
                     break;
-                case("Žlutá"):
+                case("yellow"):
                     selected.add(Color.YELLOW);
                     break;
-                case("Fialová"):
+                case("violet"):
                     selected.add(Color.BLUEVIOLET);
                     break;
-                case("Černá"):
-                    selected.add(Color.BLACK);
+                case("gray"):
+                    selected.add(Color.DARKGRAY);
                     break;
-                case("Šedá"):
+                case("dark gray"):
                     selected.add(Color.GRAY);
                     break;
-                case("Oranžová"):
+                case("orange"):
                     selected.add(Color.ORANGE);
                     break;
-                case("Hnědá"):
+                case("brown"):
                     selected.add(Color.SIENNA);
                     break;
+                default:
+                    try {
+                        Color c = Color.valueOf(list[i]);
+                        selected.add(c);
+                    }catch (IllegalArgumentException ex){
+                        //debug
+                        System.out.println(list[i]);
+                        Logger.getLogger(AimTrainer.class.getName()).log(Level.SEVERE, null, ex); //otestovat
+                    }
             }
         }
         return selected;

@@ -27,7 +27,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 /**
- *
+ * trida obsahujici nahodne vytvorenou mapu
  * @author kubaj
  */
 public class RandomMap extends Thread {
@@ -62,6 +62,8 @@ public class RandomMap extends Thread {
         this.colors = settings.getColors();
         multiplier = (speed/5) + (50/size);
         root = new Pane();
+        
+        //pridani HUD
         Label scoreLabel = new Label();
         scoreLabel.setPadding(new Insets(20));
         scoreLabel.setFont(new Font("Technic", 30));
@@ -85,6 +87,7 @@ public class RandomMap extends Thread {
     }
     
     public void generateRandom(){
+        //vytvori terc nahodne na obrazovce s nahodnou barvou
         Random rand = new Random();
         double x = (rand.nextDouble() * (maxX-minX)) + minX;
         double y = (rand.nextDouble() * (maxY-minY)) + minY;
@@ -95,10 +98,10 @@ public class RandomMap extends Thread {
         c.setStrokeType(StrokeType.CENTERED);
         c.setStrokeWidth(size/15.0);
         
-        
+        //nastaveni priblizovaciho kruhu
         ApproachCircleGen acg = new ApproachCircleGen(x, y, size, approachTime, color);
         root.getChildren().add(acg.getCircle());
-        
+        //zmizeni terce po chvili
         PauseTransition pt = new PauseTransition(Duration.millis(approachTime));
         pt.setOnFinished(event -> {
            if(root.getChildren().contains(c)){
@@ -117,6 +120,7 @@ public class RandomMap extends Thread {
         long startTime = System.currentTimeMillis();
         c.fillProperty().set(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.65));
         
+        //pri kliknuti na terc
         c.setOnMouseClicked((MouseEvent event) -> {
             acg.stopAnimation();
             long stopTime = System.currentTimeMillis();
@@ -126,6 +130,7 @@ public class RandomMap extends Thread {
                 int i = score.get() + (int) ((approachTime - reaction) * multiplier * combo.get());
                 score.set(i);
                 hit++;
+                //debug
                 System.out.println("\nReaction: " + reaction + "\nMultiplier: " + multiplier + "\ncombo: " + combo.get());
                 System.out.println("Score: " + score.get() + " - " + i);
             }
@@ -135,6 +140,7 @@ public class RandomMap extends Thread {
     }
     
     public void centerText(Text t){
+        //vycentrovat text do stredu obrazovky
         double x = t.getX();
         double y = t.getY();
         double width = t.getBoundsInLocal().getWidth();
@@ -144,19 +150,22 @@ public class RandomMap extends Thread {
 
     @Override
     public void run() {
+        //spustit vlakno, ve kterem se generuji terce
         try {
             missed = 0;
             score.set(0);
             combo.set(0);
+            //pocatecni odpocet
             Text t = new Text();
             t.setFont(new Font("Technic", 110));
             t.setX(screen.getMaxX()/2);
             t.setY(screen.getMaxY()/2 - 80);
-            Text t2 = new Text("Klikni na terče co nejrychleji");
+            Text t2 = new Text("Klikni na terce co nejrychleji");
             t2.setFont(new Font("Technic", 30));
             t2.setX(t.getX());
             t2.setY(t.getY() + 60);
             centerText(t2);
+            //zmizeni textu
             FadeTransition ft2 = new FadeTransition(Duration.millis(3000), t2);
             ft2.setFromValue(1.5);
             ft2.setToValue(0.0);
@@ -166,6 +175,7 @@ public class RandomMap extends Thread {
             for(int i = 3; i > 0; i--){
                 t.setText(String.valueOf(i));
                 centerText(t);
+                //mizeni cisel
                 FadeTransition ft = new FadeTransition(Duration.millis(900), t);
                 ft.setFromValue(1.0);
                 ft.setToValue(0.0);
@@ -177,6 +187,7 @@ public class RandomMap extends Thread {
         } catch (InterruptedException ex) {
             System.out.println("Thread has been interrupted");
         }
+        //vytvoreni casove osy ktera pri kazdem cyklu vytvori novy terc
         int interval = (int) (1000 - Math.pow(speed, 2.9));
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.millis(interval), event -> {
@@ -188,12 +199,13 @@ public class RandomMap extends Thread {
         timeline.setCycleCount(cycleCount);
         timeline.play();
         timeline.setOnFinished(event -> {
+            //pri ukonceni zaznamena vysledek, nastaveni mapy a prepne na vyslednou obrazovku
             if(combo.get() > highestCombo){
                 highestCombo = combo.get();
             }
             Result res = new Result(hit, missed, score.get(), highestCombo, System.currentTimeMillis());
             MapSettings settings = new MapSettings(approachTime, time, speed, size, colors);
-            ResultScreen resScreen = new ResultScreen(res, settings);
+            ResultScreen resScreen = new ResultScreen(res, settings, "random_highscores.csv", "random");
             stage.getScene().setRoot(resScreen.getRoot());
         });
     }

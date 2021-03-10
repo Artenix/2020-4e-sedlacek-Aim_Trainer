@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import target.*?>
+<?import javafx.scene.shape.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.Color?>
-<?import javafx.scene.text.Text?>
-<?import java.util.ArrayList?>
 <?import javafx.scene.shape.Circle?>
-<?import aimtrainer.MapSettings?>
-<?import aimtrainer.Target?>
 
-<Pane fx:id="pane" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aimtrainer.CustomMapController">
-<properties approachTime="5" speed="5.0" size="6.0" colors="Zelená,Červená"/>
-    <Circle centerX="500" centerY="500"  />
-    <Circle centerX="600" centerY="700"  />
-    <Circle centerX="700" centerY="500"  />
+<Pane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aimtrainer.CustomMapController">
+<properties approachTime="5" colors="Zelená,Červená" size="6.0" speed="5.0" />
+   <children>
+      <Target interval="3000" layoutX="290.0" layoutY="200.0" radius="128.0" />
+      <Target interval="2500" layoutX="652.0" layoutY="217.0" radius="82.0" />
+      <Target interval="2000" layoutX="911.0" layoutY="254.0" radius="67.0" />
+      <Target interval="1500" layoutX="1129.0" layoutY="318.0" radius="50.0" />
+      <Target interval="1000" layoutX="1275.0" layoutY="428.0" radius="38.0" />
+      <Target interval="500" layoutX="1346.0" layoutY="554.0" radius="23.0" />
+   </children>
 </Pane>

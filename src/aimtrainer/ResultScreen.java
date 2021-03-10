@@ -3,53 +3,68 @@
  */
 package aimtrainer;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
- *
+ * trida zobrazujici dosazeny vysledek na mape
  * @author kubaj
  */
 public class ResultScreen {
     private Stage stage = AimTrainer.getPrimaryStage();
-    private FlowPane root;
+    private BorderPane root;
     private Result res;
-    private List score;
     private String path;
+    private String mapType;
     private MapSettings settings;
 
-    public ResultScreen(Result res, MapSettings settings) {
+    public ResultScreen(Result res, MapSettings settings, String highscoresFileName, String mapType) {
         this.settings = settings;
         this.res = res;
-        path = "C:\\Users\\kubaj\\Desktop\\random_highscores.csv";
-        score = new ArrayList<>();
-        loadValues();
+        this.path = (new File("").getAbsolutePath()).concat("\\highscores\\" + highscoresFileName);
+        this.mapType = mapType;
+        
         if(res.getScore() > 0) {
             addResultToFile(res);
         }
         
-        root = new FlowPane();
-        root.setPadding(new Insets(150));
+        //vytvoreni vypisu skore atd. na mape
+        root = new BorderPane();
+        root.setPadding(new Insets(20,300,0,100));
         GridPane grid = new GridPane();
+        grid.setVgap(20);
+        grid.setHgap(10);
+        
+        
+        Text title = new Text();
+        title.setFont(new Font("Futura", 72));
+        if(mapType.equals("random")){
+            title.setText("Random Map");
+        } else if (mapType.equals("custom")){
+            title.setText(highscoresFileName.substring(0, highscoresFileName.length()-4));
+        }
+        HBox hb = new HBox(title);
+        hb.setAlignment(Pos.TOP_CENTER);
+        root.setTop(hb);
+        
         Font font = new Font("Futura", 60);
         Label lScore = new Label("Score: ");
         lScore.setFont(font);
@@ -74,53 +89,45 @@ public class ResultScreen {
         
         Label lCombo = new Label("Combo: ");
         lCombo.setFont(font);
-        Text tCombo = new Text(String.valueOf(res.getHighestCombo()));
+        Text tCombo = new Text(String.valueOf(res.getHighestCombo()) + "x");
         tCombo.setFont(font);
         grid.add(lCombo, 0, 3);
         grid.add(tCombo, 1, 3);
-        root.getChildren().add(grid);
         
-        //premistit do bottom left rohu
-        Button bBack = new Button("Back");
-        bBack.setOnMouseClicked((event) -> {
-            RandomMapSettings rms = new RandomMapSettings();
-            stage.getScene().setRoot(rms.getRoot());
-        });
-        root.getChildren().add(bBack);
         
         Button bRestart = new Button("Restart");
+        bRestart.setFont(new Font(32));
+        bRestart.setPadding(Insets.EMPTY);
+        bRestart.setPrefSize(130, 70);
         bRestart.setOnMouseClicked((event) -> {
             RandomMap rm = new RandomMap(settings);
             rm.start();
         });
-        root.getChildren().add(bRestart);
-        
-    }
-    
-    public void loadValues(){
-        
-        File f = new File(path);
-        if(!f.exists()){
-            try {
-                f.createNewFile();
-            } catch (IOException ex) {
-                Logger.getLogger(ResultScreen.class.getName()).log(Level.SEVERE, null, ex);
+        Button bBack = new Button("Back");
+        bBack.setFont(new Font(32));
+        bBack.setPrefSize(130, 70);
+        bBack.setOnMouseClicked((event) -> {
+            if(mapType.equals("random")){
+                RandomMapSettings rms = new RandomMapSettings();
+                stage.getScene().setRoot(rms.getRoot());
+            } else if (mapType.equals("custom")){
+                CustomMapSettings cms = new CustomMapSettings();
+                stage.getScene().setRoot(cms.getRoot());
             }
-        }
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(",");
-                score.add(Arrays.asList(values));
-            }
-         } catch (FileNotFoundException ex) {
-            Logger.getLogger(ResultScreen.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(ResultScreen.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            
+        });
+        //prazdny label pro pridani mezery mezi 1. a 3. sloupcem
+        Label empty = new Label();
+        empty.setMinWidth(200);
+        grid.add(empty, 2, 0);
+        grid.add(bRestart, 3, 2);
+        grid.add(bBack, 3, 3);
+        root.setCenter(grid);
+        
     }
     
     public void addResultToFile(Result res){
+        //prida dosazeny vysledek na konec souboru
         PrintWriter writer = null;
         String output = res.toString();
         try {

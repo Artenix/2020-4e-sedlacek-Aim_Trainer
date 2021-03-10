@@ -10,7 +10,7 @@
 <?import javafx.scene.shape.Circle?>
 
 <Pane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aimtrainer.CustomMapController">
-<properties approachTime="5" colors="Zelená,Červená" size="6.0" speed="5.0" />
+<properties approachTime="5" colors="green,red" size="6.0" speed="5.0" />
    <children>
       <Target interval="3000" layoutX="290.0" layoutY="200.0" radius="128.0" />
       <Target interval="2500" layoutX="652.0" layoutY="217.0" radius="82.0" />

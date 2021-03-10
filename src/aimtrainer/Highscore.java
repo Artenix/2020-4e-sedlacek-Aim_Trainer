@@ -5,6 +5,10 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+/**
+ * trida predstavujici zaznamy v tabulce s vysledky
+ * @author kubaj
+ */
 public class Highscore {
     
     private final IntegerProperty pos;

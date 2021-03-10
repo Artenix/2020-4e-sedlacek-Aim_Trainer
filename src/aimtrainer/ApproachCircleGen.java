@@ -5,19 +5,16 @@ package aimtrainer;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.transform.Scale;
 import javafx.util.Duration;
 
 /**
- *
+ * trida vytvarejici priblizovaci kruh
  * @author kubaj
  */
-public class ApproachCircleGen extends Circle{
+public class ApproachCircleGen {
+    //parametry priblizovaciho kruhu
     protected double x;
     protected double y;
     protected double r;
@@ -36,12 +33,15 @@ public class ApproachCircleGen extends Circle{
         circle = new Circle(this.x, this.y, this.r);
         circle.setStrokeWidth(r/30.0);
         circle.setFill(Color.TRANSPARENT);
+        
+        //zmensovani se ("priblizovani") kruhu
         st = new ScaleTransition(Duration.millis(approachTime), circle);
         st.setFromX(0.7 + 160.0 / r);
         st.setFromY(0.7 + 160.0 / r);
         st.setToX(1.0);
         st.setToY(1.0);
         
+        //objeveni se kruhu
         ft = new FadeTransition(Duration.millis(approachTime), circle);
         ft.setFromValue(0.0);
         ft.setToValue(1.0);
@@ -52,6 +52,7 @@ public class ApproachCircleGen extends Circle{
     }
     
     public void startAnimation(){
+        //spusteni vsech animaci
         ft.play();
         st.play();
         circle.setStroke(color);
@@ -59,8 +60,10 @@ public class ApproachCircleGen extends Circle{
     }
     
     public void stopAnimation(){
+        //zastaveni animaci a zmizeni kruhu
         circle.setStroke(Color.TRANSPARENT);
         circle.setFill(Color.TRANSPARENT);
+        ft.stop();
         st.stop();
     }
     

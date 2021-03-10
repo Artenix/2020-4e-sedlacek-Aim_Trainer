@@ -4,7 +4,7 @@
 package aimtrainer;
 
 /**
- *
+ * trida predstavujici vysledek v tabulce
  * @author kubaj
  */
 public class Result implements Comparable<Result>{
@@ -26,6 +26,7 @@ public class Result implements Comparable<Result>{
     
     @Override
     public int compareTo(Result other) {
+        //zaimplementovano, aby se pole s touto tridou mohlo v tabulce setridit podle dosazeneho skore
         return Integer.compare(this.score, other.score);
     }
 

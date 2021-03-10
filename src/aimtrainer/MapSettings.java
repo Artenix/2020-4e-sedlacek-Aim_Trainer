@@ -7,7 +7,7 @@ import java.util.List;
 import javafx.scene.paint.Color;
 
 /**
- *
+ * trida, ktera uklada nastaveni kazde mapy
  * @author kubaj
  */
 public class MapSettings {
