@@ -55,13 +55,13 @@ public class RandomMapSettings {
         //vytvareni vsech objektu, kterymi se upravi vlastosti nahodne mapy
         Text tApproach = new Text("Set approach time:");
         tApproach.setFont(new Font("Technic", 25));
-        Slider sApproach = new Slider(1.0, 10.0, 4.0);
+        Slider sApproach = new Slider(1.0, 5.0, 4.0);
         sApproach.setMaxSize(1200, 70);
         sApproach.setTooltip(new Tooltip("How fast the outer circle approaches"));
         sApproach.showTickLabelsProperty().set(true);
         sApproach.showTickMarksProperty().set(true);
-        sApproach.setMajorTickUnit(1.0f);
-        sApproach.setBlockIncrement(0.5f);
+        sApproach.setMajorTickUnit(0.5f);
+        sApproach.setBlockIncrement(0.25f);
         sApproach.setSnapToTicks(true);
         root.getChildren().add(tApproach);
         root.getChildren().add(sApproach);
@@ -148,7 +148,7 @@ public class RandomMapSettings {
         Button start = new Button("Launch");
         start.setFont(new Font(24));
         start.setOnMouseClicked((event) -> {
-            int approachTime = (int) (1 / sApproach.getValue() * 3000);
+            int approachTime = (int) (2000 / sApproach.getValue());
             int time = (int) sTime.getValue();
             double speed = sSpeed.getValue();
             double size = (sSize.getValue() * 10) + 10;

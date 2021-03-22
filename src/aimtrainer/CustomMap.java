@@ -13,6 +13,7 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
@@ -21,6 +22,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
@@ -45,10 +47,10 @@ public class CustomMap extends Thread {
     private List<Color> colors = new ArrayList<Color>();
     private MapSettings settings;
     private Rectangle2D screen = Screen.getPrimary().getBounds();
-    private double minX = screen.getMinX() + 80;
-    private double minY = screen.getMinY() + 80;
-    private double maxX = screen.getMaxX() - 80;
-    private double maxY = screen.getMaxY() - 80;
+    private double minX = screen.getMinX() + 100;
+    private double minY = screen.getMinY() + 100;
+    private double maxX = screen.getMaxX() - 100;
+    private double maxY = screen.getMaxY() - 100;
     private int hit;
     private int missed;
     private double accuracy;
@@ -68,9 +70,9 @@ public class CustomMap extends Thread {
         this.colors = settings.getColors();
         interval = (int) (1000 - Math.pow(speed, 2.9));
         this.time = interval*children.size();
-        
+        multiplier = speed * (500/size) * (3000/approachTime);
+
         //pridani HUD
-        multiplier = (speed/5) + (50/size);
         root = new Pane();
         
         Label scoreLabel = new Label();
@@ -85,11 +87,11 @@ public class CustomMap extends Thread {
         comboLabel.textProperty().bind(combo.asString().concat("x"));
         
         //debug
-        Circle c1 = new Circle(minX, minY, 5);
+        /*Circle c1 = new Circle(minX, minY, 5);
         Circle c2 = new Circle(maxX, minY, 5);
         Circle c3 = new Circle(minX, maxY, 5);
         Circle c4 = new Circle(maxX, maxY, 5);
-        root.getChildren().addAll(c1, c2, c3, c4);
+        root.getChildren().addAll(c1, c2, c3, c4);*/
         
         root.getChildren().addAll(scoreLabel, comboLabel);
     }
@@ -97,57 +99,65 @@ public class CustomMap extends Thread {
     private void generateCircle(Target target){
         //nastaveni terce
         Random rand = new Random();
-        Color color = colors.get(rand.nextInt(colors.size()));
+        Color color = Color.valueOf(target.getFill().toString());
+        if(target.getFill() == null) color = colors.get(rand.nextInt(colors.size()));
         target.fillProperty().set(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.5));
         if(target.getRadius() == 0.0) target.setRadius(size);
         target.setStroke(color);
         target.setStrokeType(StrokeType.CENTERED);
         target.setStrokeWidth(target.getRadius()/15.0);
-        
-        //nastaveni priblizovaciho kruhu a zmizeni terce po chvili
+
+        //pokud byl terc vytvoren v scenebuilderu nema nastaveny centerX ale layoutX
         double targetX = target.getCenterX();
         double targetY = target.getCenterY();
-        //pokud byl terc vytvoren v scenebuilderu nema nastaveny centerX ale layoutX
         if(targetX == 0.0) targetX = target.getLayoutX();
         if(targetY == 0.0) targetY = target.getLayoutY();
+
+        //nastaveni vykresleni checkmarku nebo krizku
+        DrawMark dm = new DrawMark(target);
+        Platform.runLater(() -> root.getChildren().add(dm.getImgView()));
+        //nastaveni priblizovaciho kruhu a zmizeni terce po chvili
         ApproachCircleGen acg = new ApproachCircleGen(targetX, targetY, target.getRadius(), approachTime, color);
         Platform.runLater(() ->  root.getChildren().add(acg.getCircle()));
         PauseTransition pt = new PauseTransition(Duration.millis(approachTime));
         pt.setOnFinished(event -> {
-           if(root.getChildren().contains(target)){
-               System.out.println("Destroyed");
                acg.stopAnimation();
                Platform.runLater(() -> root.getChildren().remove(target));
+               dm.draw(false);
                if(combo.get() > highestCombo){
                    highestCombo = combo.get();
                }
                combo.set(0);
                missed++;
-           }
         });
 
         pt.play();
         acg.startAnimation();
+        Platform.runLater(() -> root.getChildren().add(target));
         long startTime = System.currentTimeMillis();
         target.fillProperty().set(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.65));
         
         //pri kliknuti na terc
         target.setOnMouseClicked((MouseEvent event) -> {
-            acg.stopAnimation();
+            pt.stop();
             long stopTime = System.currentTimeMillis();
+            Platform.runLater(() -> root.getChildren().remove(target));
+            acg.stopAnimation();
             long reaction = stopTime - startTime;
             if(reaction < approachTime){
+                dm.draw(true);
                 combo.set(combo.get() + 1);
-                int i = score.get() + (int) ((approachTime - reaction) * multiplier * combo.get());
+                double base = (1.0/reaction) * 1000;
+                int i = score.get() + (int) (base * multiplier * combo.get());
                 score.set(i);
                 hit++;
                 //debug
                 System.out.println("\nReaction: " + reaction + "\nMultiplier: " + multiplier + "\ncombo: " + combo.get());
                 System.out.println("Score: " + score.get() + " - " + i);
+            } else {
+                dm.draw(false);
             }
-            Platform.runLater(() -> root.getChildren().remove(target));
         });
-        Platform.runLater(() -> root.getChildren().add(target));
     }
     
     @Override
@@ -218,12 +228,16 @@ public class CustomMap extends Thread {
         //pri ukonceni zaznamena vysledek, nastaveni mapy a prepne na vyslednou obrazovku
         if(combo.get() > highestCombo){
                 highestCombo = combo.get();
-            }
-            Result res = new Result(hit, missed, score.get(), highestCombo, System.currentTimeMillis());
-            MapSettings settings = new MapSettings(approachTime, time, speed, size, colors);
-            ResultScreen resScreen = new ResultScreen(res, settings, mapName + ".csv", "custom");
-            stage.getScene().setRoot(resScreen.getRoot());
-            
+        }
+        Result res = new Result(hit, missed, score.get(), highestCombo, System.currentTimeMillis());
+        MapSettings settings = new MapSettings(approachTime, time, speed, size, colors);
+        ResultScreen resScreen = new ResultScreen(res, settings, mapName + ".csv", "custom");
+        ObservableList<Node> oList = FXCollections.observableList(children);
+        CustomMap cm = new CustomMap(settings, oList);
+        cm.setMapName(this.mapName);
+        resScreen.setCM(cm);
+        stage.getScene().setRoot(resScreen.getRoot());
+
             
         /*Timeline timeline = new Timeline(
             new KeyFrame(Duration.millis(interval), event -> {

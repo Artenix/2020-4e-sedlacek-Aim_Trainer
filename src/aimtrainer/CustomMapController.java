@@ -43,7 +43,7 @@ public class CustomMapController extends Thread implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         //ziskani informaci o mape ze souboru fxml
-        approachTime = (int) (1.0 / Integer.parseInt((String) pane.getProperties().get("approachTime")) * 3000);
+        approachTime = (int) (2000.0 / Double.parseDouble((String) pane.getProperties().get("approachTime")));
         speed = Double.parseDouble((String) pane.getProperties().get("speed"));
         
         //defaultni velikost pro terce, ktere nemaji preddefinovanou vlastni velikost

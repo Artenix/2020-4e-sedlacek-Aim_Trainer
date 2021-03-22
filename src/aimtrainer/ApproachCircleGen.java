@@ -34,7 +34,7 @@ public class ApproachCircleGen {
         circle.setStrokeWidth(r/30.0);
         circle.setFill(Color.TRANSPARENT);
         
-        //zmensovani se ("priblizovani") kruhu
+        //zmensovani ("priblizovani") kruhu
         st = new ScaleTransition(Duration.millis(approachTime), circle);
         st.setFromX(0.7 + 160.0 / r);
         st.setFromY(0.7 + 160.0 / r);

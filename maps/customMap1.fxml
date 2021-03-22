@@ -4,7 +4,7 @@
 <?import target.*?>
 
 <Pane fx:id="pane" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aimtrainer.CustomMapController">
-<properties approachTime="5" speed="5.0" size="6.0" colors="#111111,Red"/>
+<properties approachTime="10.0" speed="5" size="6.0" colors="#111111,Red"/>
     <Target centerX="500" centerY="500"  />
     <Target centerX="600" centerY="700"  />
     <Target centerX="700" centerY="500"  />

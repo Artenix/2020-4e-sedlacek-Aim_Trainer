@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.scene.layout.*?>
 <?import target.*?>
 
-<Pane fx:id="pane" xmlns:fx="http://javafx.com/fxml/1" fx:controller="aimtrainer.CustomMapController">
-<properties approachTime="5" speed="5.0" size="6.0" colors="green,red"/>
-    <Target centerX="500" centerY="500"  />
-    <Target centerX="600" centerY="700"  />
-    <Target centerX="700" centerY="500"  />
+<Pane fx:id="pane" xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/11.0.1" fx:controller="aimtrainer.CustomMapController">
+<properties approachTime="5" colors="green,red" size="6.0" speed="5.0" />
+    <Target fill="#790606" interval="3000" centerX="290.0" centerY="200.0" radius="128.0" />
+    <Target centerX="500" centerY="500" />
+    <Target centerX="600" centerY="700" />
 </Pane>
+

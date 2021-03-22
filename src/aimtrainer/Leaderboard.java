@@ -3,7 +3,7 @@
  */
 package aimtrainer;
 
-import com.sun.javafx.scene.control.skin.TableHeaderRow;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,6 +25,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.skin.TableHeaderRow;
 import javafx.util.Callback;
 import javafx.util.Duration;
 
@@ -90,14 +91,14 @@ public class Leaderboard {
         tcScore.setMinWidth(400);
         
         
-        //zakazani presouvani sloupcu
+
         table.getColumns().addAll(tcPos, tcScore);
-        table.widthProperty().addListener((ObservableValue<? extends Number> source, Number oldN, Number newN) -> {
+        /*table.widthProperty().addListener((ObservableValue<? extends Number> source, Number oldN, Number newN) -> {
             TableHeaderRow header = (TableHeaderRow) table.lookup("TableHeaderRow");
             header.reorderingProperty().addListener((ObservableValue<? extends Boolean> observable, Boolean oldVal, Boolean newVal) -> {
                 header.setReordering(false);
             });
-        });
+        });*/
         
         //zaplnit tabulku vysledku
         int i = 0;
@@ -123,7 +124,7 @@ public class Leaderboard {
                         } else {
                             //pro kazdou radu vytvori novy popisek kteremu upravi chovani
                             Tooltip tooltip = new Tooltip();
-                            changeTooltipBehaviour(tooltip);
+                            tooltip.setShowDelay(Duration.millis(200));
                             tooltip.setText(item.getDetails());
                             setTooltip(tooltip);
                         }
@@ -136,21 +137,5 @@ public class Leaderboard {
         
         return table;
         
-    }
-    
-    private void changeTooltipBehaviour(Tooltip tooltip){
-        //upravi chovani popisku aby se zobrazoval drive
-        try {
-            Class<?> tooltipClass = tooltip.getClass().getDeclaredClasses()[0];
-            Constructor<?> constructor = tooltipClass.getDeclaredConstructor(Duration.class, 
-                    Duration.class, Duration.class, boolean.class);
-            constructor.setAccessible(true);
-            Object tooltipDurations = constructor.newInstance(new Duration(200), new Duration(10000), new Duration(200), true);
-            Field field = tooltip.getClass().getDeclaredField("BEHAVIOR");
-            field.setAccessible(true);
-            field.set(tooltip, tooltipDurations);
-        } catch (Exception e) {
-            Logger.getLogger(RandomMapSettings.class.getName()).log(Level.SEVERE, null, e);
-        }
     }
 }

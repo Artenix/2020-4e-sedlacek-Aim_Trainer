@@ -5,6 +5,9 @@ package aimtrainer;
 
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.PauseTransition;
@@ -40,10 +43,10 @@ public class RandomMap extends Thread {
     private List<Color> colors;
     private MapSettings settings;
     private Rectangle2D screen = Screen.getPrimary().getBounds();
-    private double minX = screen.getMinX() + 80;
-    private double minY = screen.getMinY() + 80;
-    private double maxX = screen.getMaxX() - 80;
-    private double maxY = screen.getMaxY() - 80;
+    private double minX = screen.getMinX() + 100;
+    private double minY = screen.getMinY() + 100;
+    private double maxX = screen.getMaxX() - 100;
+    private double maxY = screen.getMaxY() - 100;
     private int hit;
     private int missed;
     private double accuracy;
@@ -60,8 +63,9 @@ public class RandomMap extends Thread {
         this.speed = settings.getSpeed();
         this.size = settings.getSize();
         this.colors = settings.getColors();
-        multiplier = (speed/5) + (50/size);
+        multiplier = speed * (500/size) * (3000/approachTime);
         root = new Pane();
+
         
         //pridani HUD
         Label scoreLabel = new Label();
@@ -76,11 +80,11 @@ public class RandomMap extends Thread {
         comboLabel.textProperty().bind(combo.asString().concat("x"));
         
         //debug
-        Circle c1 = new Circle(minX, minY, 5);
+        /*Circle c1 = new Circle(minX, minY, 5);
         Circle c2 = new Circle(maxX, minY, 5);
         Circle c3 = new Circle(minX, maxY, 5);
         Circle c4 = new Circle(maxX, maxY, 5);
-        root.getChildren().addAll(c1, c2, c3, c4);
+        root.getChildren().addAll(c1, c2, c3, c4);*/
         
         root.getChildren().addAll(scoreLabel, comboLabel);
         stage.getScene().setRoot(root);
@@ -98,53 +102,56 @@ public class RandomMap extends Thread {
         c.setStrokeType(StrokeType.CENTERED);
         c.setStrokeWidth(size/15.0);
         
+        //nastaveni vykresleni checkmarku nebo krizku
+        DrawMark dm = new DrawMark(c);
+        Platform.runLater(() -> root.getChildren().add(dm.getImgView()));
         //nastaveni priblizovaciho kruhu
         ApproachCircleGen acg = new ApproachCircleGen(x, y, size, approachTime, color);
-        root.getChildren().add(acg.getCircle());
+        Platform.runLater(() -> root.getChildren().add(acg.getCircle()));
         //zmizeni terce po chvili
         PauseTransition pt = new PauseTransition(Duration.millis(approachTime));
         pt.setOnFinished(event -> {
-           if(root.getChildren().contains(c)){
                acg.stopAnimation();
-               root.getChildren().remove(c);
+               Platform.runLater(() -> root.getChildren().remove(c));
+               dm.draw(false);
                if(combo.get() > highestCombo){
                    highestCombo = combo.get();
                }
                combo.set(0);
                missed++;
-           }
         });
 
         pt.play();
         acg.startAnimation();
+        Platform.runLater(() -> root.getChildren().add(c));
         long startTime = System.currentTimeMillis();
         c.fillProperty().set(new Color(color.getRed(), color.getGreen(), color.getBlue(), 0.65));
         
         //pri kliknuti na terc
         c.setOnMouseClicked((MouseEvent event) -> {
-            acg.stopAnimation();
+            pt.stop();
             long stopTime = System.currentTimeMillis();
+            Platform.runLater(() -> root.getChildren().remove(c));
+            acg.stopAnimation();
             long reaction = stopTime - startTime;
-            if(reaction < approachTime){
-                combo.set(combo.get() + 1);
-                int i = score.get() + (int) ((approachTime - reaction) * multiplier * combo.get());
-                score.set(i);
-                hit++;
-                //debug
-                System.out.println("\nReaction: " + reaction + "\nMultiplier: " + multiplier + "\ncombo: " + combo.get());
-                System.out.println("Score: " + score.get() + " - " + i);
-            }
-            root.getChildren().remove(c);
+            dm.draw(true);
+            combo.set(combo.get() + 1);
+            double base = (1.0/reaction) * 1000;
+            int i = score.get() + (int) (base * multiplier * combo.get());
+            score.set(i);
+            hit++;
+            //debug
+            System.out.println("\nReaction: " + reaction + "\nMultiplier: " + multiplier + "\ncombo: " + combo.get());
+            System.out.println("Score: " + score.get() + " - " + i);
         });
-        root.getChildren().add(c);
     }
     
     public void centerText(Text t){
         //vycentrovat text do stredu obrazovky
         double x = t.getX();
         double y = t.getY();
-        double width = t.getBoundsInLocal().getWidth();
-        double height = t.getBoundsInLocal().getHeight();
+        double width = t.getLayoutBounds().getWidth();
+        double height = t.getLayoutBounds().getHeight();
         t.relocate(x - (width / 2), y - (height / 2));
     }
 
@@ -189,18 +196,17 @@ public class RandomMap extends Thread {
         }
         //vytvoreni casove osy ktera pri kazdem cyklu vytvori novy terc
         int interval = (int) (1000 - Math.pow(speed, 2.9));
+        int cycleCount = (time * 1000) / interval;
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.millis(interval), event -> {
                 generateRandom();
-                
             })
         );
-        int cycleCount = (time * 1000) / interval;
         timeline.setCycleCount(cycleCount);
         timeline.play();
         timeline.setOnFinished(event -> {
             //pri ukonceni zaznamena vysledek, nastaveni mapy a prepne na vyslednou obrazovku
-            if(combo.get() > highestCombo){
+            if (combo.get() > highestCombo) {
                 highestCombo = combo.get();
             }
             Result res = new Result(hit, missed, score.get(), highestCombo, System.currentTimeMillis());

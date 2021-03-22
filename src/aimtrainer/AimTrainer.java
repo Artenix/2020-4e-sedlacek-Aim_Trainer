@@ -7,6 +7,7 @@ import javafx.application.Application;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -31,6 +32,8 @@ public class AimTrainer extends Application {
     @Override
     public void start(Stage primaryStage) {
         stage = primaryStage;
+        stage.setFullScreenExitHint("");
+        stage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         root = new Pane();
         Rectangle2D screen = Screen.getPrimary().getBounds();
         Scene scene = new Scene(root, screen.getMaxX(), screen.getMaxY());

@@ -67,9 +67,7 @@ class CustomMapSettings {
         Button back = new Button("Back");
         back.setFont(new Font(24));
         back.setPrefSize(110, 50);
-        back.setOnMouseClicked((event) -> {
-            stage.getScene().setRoot(AimTrainer.getRoot());
-        });
+        back.setOnMouseClicked((event) -> stage.getScene().setRoot(AimTrainer.getRoot()));
         bpLeft.setBottom(back);
         root.setLeft(bpLeft);
     }
@@ -105,12 +103,10 @@ class CustomMapSettings {
                             + " Size: " + cm.getSize();
                     CustomMapProp cmp = new CustomMapProp(name, details, cm);
                     maps.add(cmp);
-                } catch (MalformedURLException ex) {
-                    Logger.getLogger(CustomMapSettings.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (IOException ex) {
                     Logger.getLogger(CustomMapSettings.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
             }
         }
     }

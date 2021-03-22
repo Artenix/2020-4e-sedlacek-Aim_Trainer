@@ -35,6 +35,7 @@ public class ResultScreen {
     private String path;
     private String mapType;
     private MapSettings settings;
+    private CustomMap cm;
 
     public ResultScreen(Result res, MapSettings settings, String highscoresFileName, String mapType) {
         this.settings = settings;
@@ -86,13 +87,20 @@ public class ResultScreen {
         tMiss.setFont(font);
         grid.add(lMiss, 0, 2);
         grid.add(tMiss, 1, 2);
+
+        Label lAccuracy = new Label("Accuracy: ");
+        lAccuracy.setFont(font);
+        Text tAccuracy = new Text(String.valueOf(res.getAccuracy()*100) + "%");
+        tAccuracy.setFont(font);
+        grid.add(lAccuracy, 0, 3);
+        grid.add(tAccuracy, 1, 3);
         
         Label lCombo = new Label("Combo: ");
         lCombo.setFont(font);
         Text tCombo = new Text(String.valueOf(res.getHighestCombo()) + "x");
         tCombo.setFont(font);
-        grid.add(lCombo, 0, 3);
-        grid.add(tCombo, 1, 3);
+        grid.add(lCombo, 0, 4);
+        grid.add(tCombo, 1, 4);
         
         
         Button bRestart = new Button("Restart");
@@ -100,8 +108,13 @@ public class ResultScreen {
         bRestart.setPadding(Insets.EMPTY);
         bRestart.setPrefSize(130, 70);
         bRestart.setOnMouseClicked((event) -> {
-            RandomMap rm = new RandomMap(settings);
-            rm.start();
+            if(mapType.equals("random")){
+                RandomMap rm = new RandomMap(settings);
+                rm.start();
+            } else if (mapType.equals("custom")){
+                if(cm != null) cm.start();
+            }
+
         });
         Button bBack = new Button("Back");
         bBack.setFont(new Font(32));
@@ -143,5 +156,13 @@ public class ResultScreen {
     
     public Pane getRoot() {
         return root;
+    }
+
+    public CustomMap getCM() {
+        return cm;
+    }
+
+    public void setCM(CustomMap cm) {
+        this.cm = cm;
     }
 }
